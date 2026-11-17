@@ -1,0 +1,5 @@
+package example
+
+Hud :: struct {
+
+}

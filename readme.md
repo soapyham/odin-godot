@@ -50,9 +50,21 @@ odin build bindgen/ -o:speed -out:bin/bindgen.exe
 
 ## Creating a GDExtension
 
-See [the example game](examples/game) for a working usage of these bindings.
+Build [the example game](examples/game) from the repository root on Linux or Windows with `make game-extension`. Open `examples/game/project.godot` in Godot and run the project.
 
 Then, follow the instructions for [using the extension module](https://docs.godotengine.org/en/stable/tutorials/scripting/cpp/gdextension_cpp_example.html#using-the-gdextension-module).
+
+## Headless extension tests
+
+On Linux x86-64, build and run the integration test project from the repository root:
+
+```sh
+make test-extension
+godot --headless --path examples/tests --editor --import
+timeout 15s godot --headless --path examples/tests res://tests.tscn
+```
+
+The scene exits after the vector, exported property, lifecycle, and signal assertions pass.
 
 ## Godin
 

@@ -1,46 +1,46 @@
 package game
 
-import core "../../../core"
-import gd "godot:gdext"
-import var "../../../variant"
+import "core:math/linalg"
+import "godot:godot"
 
 PhysicsMotion :: struct {
-    params:    core.PhysicsTestMotionParameters3d,
-    result:    core.PhysicsTestMotionResult3d,
+    params:    godot.Physics_Test_Motion_Parameters3d,
+    result:    godot.Physics_Test_Motion_Result3d,
     last_hit:  bool,
-    rid:       var.Rid,
-    remainder: var.Vector3,
-    travel:    var.Vector3,
-    distance:  var.Vector3,
-    normal:    var.Vector3,
+    rid:       godot.Rid,
+    remainder: godot.Vector3,
+    travel:    godot.Vector3,
+    distance:  godot.Real,
+    normal:    godot.Vector3,
 }
 
-new_physics_motion :: proc(rid: var.Rid, margin: gd.float) -> PhysicsMotion {
+new_physics_motion :: proc(rid: godot.Rid, margin: f32) -> PhysicsMotion {
     mt := PhysicsMotion {
-        params   = core.new_physics_test_motion_parameters3d(),
-        result   = core.new_physics_test_motion_result3d(),
+        params   = godot.new_physics_test_motion_parameters3d(),
+        result   = godot.new_physics_test_motion_result3d(),
         last_hit = false,
         rid      = rid,
     }
 
-    core.physics_test_motion_parameters3d_set_margin(mt.params, margin)
+    godot.physics_test_motion_parameters3d_set_margin(mt.params, margin)
+    return mt
 }
 
-physics_motion_test :: proc(motion: ^PhysicsMotion, from: var.Transform3d, move: var.Vector3) -> bool {
-    core.physics_test_motion_parameters3d_set_from(mt.params, from)
-    core.physics_test_motion_parameters3d_set_motion(mt.params, move)
-    motion.last_hit = core.physics_server3d_body_test_motion(
-        core.singleton_physics_server3d(),
+physics_motion_test :: proc(motion: ^PhysicsMotion, from: godot.Transform3d, move: godot.Vector3) -> bool {
+    godot.physics_test_motion_parameters3d_set_from(motion.params, from)
+    godot.physics_test_motion_parameters3d_set_motion(motion.params, move)
+    motion.last_hit = bool(godot.physics_server3d_body_test_motion(
+        godot.singleton_physics_server3d(),
         motion.rid,
         motion.params,
         motion.result,
-    )
+    ))
 
     if motion.last_hit {
-        motion.remainder = core.physics_test_motion_result3d_get_remainder(motion.result)
-        motion.travel = core.physics_test_motion_result3d_get_travel(motion.result)
-        motion.distance = var.vector3_length(motion.travel)
-        motion.normal = core.physics_test_motion_result3d_get_collision_normal(motion.result, 0)
+        motion.remainder = godot.physics_test_motion_result3d_get_remainder(motion.result)
+        motion.travel = godot.physics_test_motion_result3d_get_travel(motion.result)
+        motion.distance = linalg.length(motion.travel)
+        motion.normal = godot.physics_test_motion_result3d_get_collision_normal(motion.result, 0)
     }
 
     return motion.last_hit

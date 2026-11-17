@@ -1,8 +1,9 @@
 [configuration]
 
 entry_symbol = "game_init"
-compatibility_minimum = "4.3"
+compatibility_minimum = "4.5"
 
 [libraries]
 
 windows.x86_64="res://bin/game.dll"
+linuxbsd.x86_64="res://bin/game.so"

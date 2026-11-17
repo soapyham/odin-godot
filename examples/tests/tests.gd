@@ -23,4 +23,24 @@ func _ready():
 
     test.free()
 
+    var probe = ClassDB.instantiate("Lifecycle_Probe")
+    assert(probe is Node2D)
+    probe.value = 42
+    assert(probe.value == 42)
+    var ready_values: Array[int] = []
+    var ready_messages: Array[String] = []
+    probe.ready_value.connect(func(value: int, text: String):
+        ready_values.append(value)
+        ready_messages.append(text)
+    )
+    var message := Label.new()
+    message.name = "Message"
+    probe.add_child(message)
+    add_child(probe)
+    assert(ready_values == [42])
+    assert(ready_messages == ["ready"])
+    assert(message.name == &"Updated")
+    assert(message.text == "ready")
+    probe.free()
+
     get_tree().quit(0)

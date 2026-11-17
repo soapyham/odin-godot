@@ -1,6 +1,7 @@
 package test
 
 import "godot:gdext"
+import "godot:libgd"
 
 // see gdext.InitializationFunction
 @(export)
@@ -9,30 +10,10 @@ tests_library_init :: proc "c" (
     library: gdext.ExtensionClassLibraryPtr,
     initialization: ^gdext.Initialization,
 ) -> bool {
-    gdext.init(library, get_proc_address)
-
-    initialization.initialize = init_module
-    initialization.deinitialize = uninit_module
-    initialization.user_data = nil
-    initialization.minimum_initialization_level = .Scene
-
-    return true
+    return libgd.initialize_extension(get_proc_address, library, initialization, register_test_classes)
 }
 
-init_module :: proc "c" (user_data: rawptr, level: gdext.InitializationLevel) {
-    context = gdext.godot_context()
-
-    if level != .Scene {
-        return
-    }
-
+register_test_classes :: proc() {
     test_class_register()
-}
-
-uninit_module :: proc "c" (user_data: rawptr, level: gdext.InitializationLevel) {
-    context = gdext.godot_context()
-
-    if level != .Scene {
-        return
-    }
+    lifecycle_probe_register()
 }

@@ -1,7 +1,7 @@
 package example
 
-import "godot:godot"
 import "godot:gdext"
+import "godot:libgd"
 
 // see gdext.InitializationFunction
 @(export)
@@ -10,34 +10,10 @@ example_library_init :: proc "c" (
     library: gdext.ExtensionClassLibraryPtr,
     initialization: ^gdext.Initialization,
 ) -> bool {
-    // gdext procs MUST be initialized before using the binding!
-    gdext.init(library, get_proc_address)
-
-    // MUST be called before using any core classes, singletons, or utility functions
-    godot.init()
-
-    initialization.initialize = initialize_example_module
-    initialization.deinitialize = uninitialize_example_module
-    initialization.user_data = nil
-    initialization.minimum_initialization_level = .Scene
-
-    return true
+    return libgd.initialize_extension(get_proc_address, library, initialization, register_example_classes)
 }
 
-initialize_example_module :: proc "c" (user_data: rawptr, level: gdext.InitializationLevel) {
-    context = gdext.godot_context()
-
-    if level != .Scene {
-        return
-    }
-
-    example_class_register()
-}
-
-uninitialize_example_module :: proc "c" (user_data: rawptr, level: gdext.InitializationLevel) {
-    context = gdext.godot_context()
-
-    if level != .Scene {
-        return
-    }
+register_example_classes :: proc() {
+    space_game_register()
+    farm_game_register()
 }

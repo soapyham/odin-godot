@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://18d4wcwmu1cq"]
+
+[sub_resource type="Environment" id="Environment_iufdq"]
+sdfgi_use_occlusion = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_iufdq"]
+size = Vector3(50, 0.1, 50)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iufdq"]
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 0.47377145, 0.90540314, 1)
+
+[node name="Space_Game" type="Space_Game" unique_id=2018112124]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1250372884]
+environment = SubResource("Environment_iufdq")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1103416114]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 44.918724, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1563334749]
+transform = Transform3D(1, 0, 0, 0, 0.7071067, 0.7071067, 0, -0.7071067, 0.7071067, 0, 2, 1)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=40944098]
+
+[node name="Main" type="MarginContainer" parent="HUD" unique_id=298702899]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="HUD/Main" unique_id=178659571]
+layout_mode = 2
+text = "asdsa"
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="." unique_id=756157692]
+mesh = SubResource("BoxMesh_iufdq")
+material = SubResource("StandardMaterial3D_iufdq")

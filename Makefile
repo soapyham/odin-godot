@@ -58,9 +58,15 @@ examples_hello_dir := examples/hello-gdextension/
 examples_hello_deps := $(wildcard $(examples_hello_dir)src/*.odin)
 examples_hello_out := $(examples_hello_dir)bin/example$(shared_suffix)
 
+ifeq ($(OS),Windows_NT)
+native_extension_suffix := .dll
+else
+native_extension_suffix := .so
+endif
+
 examples_game_dir := examples/game/
 examples_game_deps := $(wildcard $(examples_game_dir)src/*.odin)
-examples_game_out := $(examples_game_dir)bin/game$(shared_suffix)
+examples_game_out := $(examples_game_dir)bin/game$(native_extension_suffix)
 
 $(examples_hello_out): godot/godot.gen.odin $(examples_hello_deps)
 	odin build $(examples_hello_dir)src/ \
@@ -74,31 +80,38 @@ $(examples_hello_out): godot/godot.gen.odin $(examples_hello_deps)
 		-debug \
 		-show-timings
 
-$(examples_game_out): godot/godot.gen.odin $(examples_game_deps)
+$(examples_game_out): godot/godot.gen.odin $(examples_game_deps) $(wildcard libgd/*.odin libgd/classdb/*.odin gdext/*.odin)
+	mkdir -p $(dir $@)
 	odin build $(examples_game_dir)src/ \
 		-define:REAL_PRECISION=$(REAL_PRECISION) \
 		-collection:godot=. \
 		-build-mode:shared \
-		-out:$(examples_game_out) \
+		-out:$@ \
 		-warnings-as-errors \
 		-default-to-nil-allocator \
-		-target:windows_amd64 \
 		-debug \
 		-show-timings
 
-examples/tests/bin/tests$(shared_suffix): godot/godot.gen.odin $(wildcard examples/tests/src/*.odin)
+.PHONY: game-extension
+game-extension: $(examples_game_out)
+
+test_extension := examples/tests/bin/tests$(native_extension_suffix)
+
+$(test_extension): godot/godot.gen.odin $(wildcard examples/tests/src/*.odin) $(wildcard libgd/*.odin libgd/classdb/*.odin gdext/*.odin)
+	mkdir -p $(dir $@)
 	odin build examples/tests/src/ \
 		-define:REAL_PRECISION=$(REAL_PRECISION) \
 		-collection:godot=. \
 		-build-mode:shared \
-		-out:examples/tests/bin/tests$(shared_suffix) \
+		-out:$@ \
 		-warnings-as-errors \
 		-default-to-nil-allocator \
-		-target:windows_amd64 \
-		-debug \
-		-show-timings
+		-debug
 
-examples: examples/tests/bin/tests$(shared_suffix) $(examples_hello_out) $(examples_game_out)
+.PHONY: test-extension
+test-extension: $(test_extension)
+
+examples: test-extension $(examples_hello_out) game-extension
 
 examples/game/cbin/game.dll: $(wildcard examples/game/csrc/*)
 	cl.exe /std:clatest /ZI /D_USRDLL /D_WINDLL $(wildcard examples/game/csrc/*.c) /link /DLL /OUT:examples/game/cbin/game.dll
@@ -111,7 +124,7 @@ tests:
 
 check:
 	odin check bindgen/
-	odin check gdextension/ -no-entry-point -collection:godot=. -vet
+	odin check gdext/ -no-entry-point -collection:godot=. -vet
 	odin check godot/ -no-entry-point -collection:godot=. -define:REAL_PRECISION=$(REAL_PRECISION) -vet
 	odin check examples/game/src -no-entry-point -collection:godot=. -define:REAL_PRECISION=$(REAL_PRECISION) -vet
 	odin check examples/hello-gdextension/src -no-entry-point -collection:godot=. -define:REAL_PRECISION=$(REAL_PRECISION) -vet
