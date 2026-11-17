@@ -90,6 +90,13 @@ map_types_to_imports :: proc(graph: g.Graph, map_mode: Package_Map_Mode) {
             case ^g.Native_Struct:
                 import_map[root_type] = No_Import{}
             case ^g.Primitive:
+                if root_type.name == "GDExtensionInitializationFunction" {
+                    import_map[root_type] = Import {
+                        name = "__bindgen_gde",
+                        path = "godot:gdext",
+                    }
+                    continue
+                }
                 import_map[root_type] = No_Import{}
             }
         }
@@ -178,10 +185,13 @@ _any_to_variant_type :: proc(type: g.Any_Type) -> names.Odin_Name {
 
 @(private)
 _any_to_odin_name :: proc(type: g.Any_Type, location := #caller_location) -> names.Odin_Name {
+    if type == nil do return "<nil>"
     switch as_type in type {
     case ^g.Builtin_Class:
+        if as_type == nil do return "<nil>"
         return as_type.odin_name
     case ^g.Engine_Class:
+        if as_type == nil do return "<nil>"
         return as_type.odin_name
     case ^g.Class_Enum(g.Builtin_Class):
         return(

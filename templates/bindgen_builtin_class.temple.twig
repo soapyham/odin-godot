@@ -45,6 +45,9 @@ when __bindgen_gde.BUILD_CONFIG == "float_32" {
 {% elseif this.odin_type == "String" %}
     new_string_odin,
     new_string_cstring,
+{% elseif this.odin_type == "NodePath" %}
+    new_node_path_odin,
+    new_node_path_cstring,
 {% end %} 
 }
 

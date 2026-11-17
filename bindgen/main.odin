@@ -73,7 +73,10 @@ parse_args :: proc(options: ^Options) -> (ok: bool) {
 }
 
 load_api :: proc(options: Options) -> (api: ^g.Api, ok: bool) {
-    data := os.read_entire_file(options.api_file) or_return
+    data, read_err := os.read_entire_file(options.api_file, context.allocator)
+    if read_err != nil {
+        return nil, false
+    }
     defer delete(data)
 
     api = new(g.Api)
@@ -83,6 +86,8 @@ load_api :: proc(options: Options) -> (api: ^g.Api, ok: bool) {
 }
 
 main :: proc() {
+    init_templates()
+
     options := default_options()
 
     if len(os.args) < 2 {

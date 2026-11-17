@@ -12,13 +12,10 @@ import "core:thread"
 import g "graph"
 import "views"
 
-@(private = "file")
-UNIX_ALLOW_READ_WRITE_ALL :: 0o666
-
 open_write_template :: proc(file_path: string, view: $T, template: temple.Compiled(T)) {
-    fhandle, ferr := os.open(file_path, os.O_CREATE | os.O_TRUNC | os.O_RDWR, UNIX_ALLOW_READ_WRITE_ALL)
-    if ferr != 0 {
-        fmt.eprintfln("Error opening %v", file_path)
+    fhandle, ferr := os.create(file_path)
+    if ferr != nil {
+        fmt.eprintfln("Error opening %v: %v", file_path, ferr)
         return
     }
     defer {
@@ -26,7 +23,7 @@ open_write_template :: proc(file_path: string, view: $T, template: temple.Compil
         os.close(fhandle)
     }
 
-    fstream := os.stream_from_handle(fhandle)
+    fstream := os.to_stream(fhandle)
     flusher, flusher_ok := io.to_flusher(fstream)
     defer if flusher_ok {
         io.flush(flusher)
@@ -129,6 +126,7 @@ generate_bindings :: proc(graph: g.Graph, options: Options) {
 
     thread.pool_start(&thread_pool)
     thread.pool_finish(&thread_pool)
+    fmt.println("Codegen finished!")
 }
 
 /*

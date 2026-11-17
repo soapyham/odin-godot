@@ -36,6 +36,9 @@ odin_primitives := [?]Primitive {
     Primitive{name = "uint32_t", odin_name = "u32"},
     Primitive{name = "uint64_t", odin_name = "u64"},
     Primitive{name = "const void*", odin_name = "rawptr"},
+
+    // gdextension types
+    Primitive{name = "GDExtensionInitializationFunction", odin_name = "InitializationFunction"},
 }
 
 @(private = "file")
@@ -712,7 +715,7 @@ any_to_pointable :: proc(any_type: Any_Type) -> Pointable_Type {
         return type
     }
 
-    panic("Couldn't match any type to pointable type")
+    panic(fmt.tprintf("Couldn't match any type to pointable type: %#v", any_type))
 }
 
 root_to_any :: proc(root_type: Root_Type) -> Any_Type {
@@ -757,7 +760,7 @@ _graph_resolve_type :: proc(graph: ^Graph, type_specifier: Type_Specifier) -> An
     if !is_godot_name {
         type_string := type_specifier.(string)
         if type_string == "Object *" {
-            return _graph_resolve_type(graph, cast(string)"Object")
+            return _graph_resolve_type(graph, names.Godot_Name("Object"))
         }
 
         // used later if we fall through the colon check
@@ -1061,7 +1064,10 @@ _graph_engine_method :: proc(graph: ^Graph, api_method: ApiClassMethod) -> Metho
     // assert(api_method.name != "get_char_from_glyph_index")
 
     if return_value, ok := api_method.return_value.(ApiClassMethodReturnValue); ok {
-        return_type_string := return_value.meta.(string) or_else return_value.type
+        return_type_string := return_value.type
+        if meta, mok := return_value.meta.(string); mok && meta != "required" && cast(names.Godot_Name)meta in graph.types {
+            return_type_string = meta
+        }
         method.return_type = _graph_resolve_type(graph, return_type_string)
     }
 

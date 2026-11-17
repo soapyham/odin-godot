@@ -13,12 +13,13 @@ Package_Class :: struct {
 }
 
 Godot_Package :: struct {
-    classes:    []Package_Class,
-    inits:      []string,
-    functions:  []Function,
-    enums:      []Enum,
-    bit_fields: []Bit_Field,
-    singletons: []Singleton,
+    classes:      []Package_Class,
+    inits:        []string,
+    editor_inits: []string,
+    functions:    []Function,
+    enums:        []Enum,
+    bit_fields:   []Bit_Field,
+    singletons:   []Singleton,
 }
 
 Function :: struct {
@@ -36,6 +37,7 @@ Function_Arg :: struct {
 
 Singleton :: struct {
     name:       string,
+    godot_name: string,
     snake_name: string,
     type:       string,
 }
@@ -49,18 +51,37 @@ godot_package :: proc(graph: ^g.Graph, allocator: mem.Allocator) -> (core: Godot
     // taking some off since we're going to skip enums in gdextension_enums
     enum_count := len(graph.enums) - len(gdextension_enums)
 
+    core_inits_count := 0
+    editor_inits_count := 0
+    for class in graph.engine_classes {
+        if class.api_type == .Editor {
+            editor_inits_count += 1
+        } else {
+            core_inits_count += 1
+        }
+    }
+
     core = Godot_Package {
-        classes    = make([]Package_Class, core_class_count),
-        inits      = make([]string, len(graph.engine_classes)),
-        functions  = make([]Function, len(graph.util_procs)),
-        enums      = make([]Enum, enum_count),
-        bit_fields = make([]Bit_Field, len(graph.bit_fields)),
-        singletons = make([]Singleton, len(graph.singletons)),
+        classes      = make([]Package_Class, core_class_count),
+        inits        = make([]string, core_inits_count),
+        editor_inits = make([]string, editor_inits_count),
+        functions    = make([]Function, len(graph.util_procs)),
+        enums        = make([]Enum, enum_count),
+        bit_fields   = make([]Bit_Field, len(graph.bit_fields)),
+        singletons   = make([]Singleton, len(graph.singletons)),
     }
 
     class_idx := 0
-    for class, init_idx in graph.engine_classes {
-        core.inits[init_idx] = names.clone_string(class.snake_name)
+    core_init_idx := 0
+    editor_init_idx := 0
+    for class in graph.engine_classes {
+        if class.api_type == .Editor {
+            core.editor_inits[editor_init_idx] = names.clone_string(class.snake_name)
+            editor_init_idx += 1
+        } else {
+            core.inits[core_init_idx] = names.clone_string(class.snake_name)
+            core_init_idx += 1
+        }
 
         if slice.contains(declared_builtins, class.godot_name) {
             continue
@@ -139,6 +160,7 @@ godot_package :: proc(graph: ^g.Graph, allocator: mem.Allocator) -> (core: Godot
     for singleton, singleton_idx in graph.singletons {
         core.singletons[singleton_idx] = Singleton {
             name       = names.clone_string(singleton.odin_name),
+            godot_name = names.clone_string(singleton.godot_name),
             snake_name = names.clone_string(singleton.snake_name),
             type       = resolve_qualified_type(singleton.type, "godot:godot"),
         }

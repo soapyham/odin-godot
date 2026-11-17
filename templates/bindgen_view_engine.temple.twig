@@ -39,15 +39,33 @@ new_{{ this.snake_name }} :: proc "contextless" () -> {{ this.self }} {
 {% if return_type, has_return_type := method.return_type.(string); has_return_type %}
 {{ this.snake_name }}_{{ method.name }} :: proc "contextless" (
 {% for arg in method.args %}
-    {{ arg.name }}_: {{ arg.type }},
+    {{ arg.name }}_: {% if arg.type == "String_Name" %}String_Name_Arg{% elseif arg.type == "Node_Path" %}Node_Path_Arg{% elseif arg.type == "String" %}String_Arg{% else %}{{ arg.type }}{% end %},
 {% end %}
 ) -> (ret: {{ return_type }}) {
 {% for arg in method.args %}
     {{ arg.name }}_ := {{ arg.name }}_
+{% if arg.type == "String_Name" %}
+    __{{ arg.name }}_sn, __{{ arg.name }}_owned := borrow_or_convert_string_name({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string_name(__{{ arg.name }}_sn)
+{% elseif arg.type == "Node_Path" %}
+    __{{ arg.name }}_np, __{{ arg.name }}_owned := borrow_or_convert_node_path({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_node_path(__{{ arg.name }}_np)
+{% elseif arg.type == "String" %}
+    __{{ arg.name }}_str, __{{ arg.name }}_owned := borrow_or_convert_string({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string(__{{ arg.name }}_str)
+{% end %}
 {% end %}
     args := []__bindgen_gde.TypePtr {
 {% for arg in method.args %}
+{% if arg.type == "String_Name" %}
+        &__{{ arg.name }}_sn,
+{% elseif arg.type == "Node_Path" %}
+        &__{{ arg.name }}_np,
+{% elseif arg.type == "String" %}
+        &__{{ arg.name }}_str,
+{% else %}
         &{{ arg.name }}_,
+{% end %}
 {% end %}
     }
     __bindgen_gde.object_method_bind_ptrcall(__{{ method.name }}_method_ptr, nil, raw_data(args), &ret)
@@ -57,15 +75,33 @@ new_{{ this.snake_name }} :: proc "contextless" () -> {{ this.self }} {
 {% else %}
 {{ this.snake_name }}_{{ method.name }} :: proc "contextless" (
 {% for arg in method.args %}
-    {{ arg.name }}_: {{ arg.type }},
+    {{ arg.name }}_: {% if arg.type == "String_Name" %}String_Name_Arg{% elseif arg.type == "Node_Path" %}Node_Path_Arg{% elseif arg.type == "String" %}String_Arg{% else %}{{ arg.type }}{% end %},
 {% end %}
 ) {
 {% for arg in method.args %}
     {{ arg.name }}_ := {{ arg.name }}_
+{% if arg.type == "String_Name" %}
+    __{{ arg.name }}_sn, __{{ arg.name }}_owned := borrow_or_convert_string_name({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string_name(__{{ arg.name }}_sn)
+{% elseif arg.type == "Node_Path" %}
+    __{{ arg.name }}_np, __{{ arg.name }}_owned := borrow_or_convert_node_path({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_node_path(__{{ arg.name }}_np)
+{% elseif arg.type == "String" %}
+    __{{ arg.name }}_str, __{{ arg.name }}_owned := borrow_or_convert_string({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string(__{{ arg.name }}_str)
+{% end %}
 {% end %}
     args := []__bindgen_gde.TypePtr {
 {% for arg in method.args %}
+{% if arg.type == "String_Name" %}
+        &__{{ arg.name }}_sn,
+{% elseif arg.type == "Node_Path" %}
+        &__{{ arg.name }}_np,
+{% elseif arg.type == "String" %}
+        &__{{ arg.name }}_str,
+{% else %}
         &{{ arg.name }}_,
+{% end %}
 {% end %}
     }
     __bindgen_gde.object_method_bind_ptrcall(__{{ method.name }}_method_ptr, nil, raw_data(args), nil)
@@ -79,19 +115,37 @@ new_{{ this.snake_name }} :: proc "contextless" () -> {{ this.self }} {
 {{ this.snake_name }}_{{ method.name }} :: proc "contextless" (
     self: {{ this.self }},
 {% for arg in method.args %}
-    {{ arg.name }}_: {{ arg.type }},
+    {{ arg.name }}_: {% if arg.type == "String_Name" %}String_Name_Arg{% elseif arg.type == "Node_Path" %}Node_Path_Arg{% elseif arg.type == "String" %}String_Arg{% else %}{{ arg.type }}{% end %},
 {% end %}
 ) -> (ret: {{ return_type }}) {
     self := self
 {% for arg in method.args %}
     {{ arg.name }}_ := {{ arg.name }}_
+{% if arg.type == "String_Name" %}
+    __{{ arg.name }}_sn, __{{ arg.name }}_owned := borrow_or_convert_string_name({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string_name(__{{ arg.name }}_sn)
+{% elseif arg.type == "Node_Path" %}
+    __{{ arg.name }}_np, __{{ arg.name }}_owned := borrow_or_convert_node_path({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_node_path(__{{ arg.name }}_np)
+{% elseif arg.type == "String" %}
+    __{{ arg.name }}_str, __{{ arg.name }}_owned := borrow_or_convert_string({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string(__{{ arg.name }}_str)
+{% end %}
 {% end %}
     args := []__bindgen_gde.TypePtr {
 {% for arg in method.args %}
+{% if arg.type == "String_Name" %}
+        &__{{ arg.name }}_sn,
+{% elseif arg.type == "Node_Path" %}
+        &__{{ arg.name }}_np,
+{% elseif arg.type == "String" %}
+        &__{{ arg.name }}_str,
+{% else %}
         &{{ arg.name }}_,
 {% end %}
+{% end %}
     }
-    __bindgen_gde.object_method_bind_ptrcall(__{{ method.name }}_method_ptr, &self, raw_data(args), &ret)
+    __bindgen_gde.object_method_bind_ptrcall(__{{ method.name }}_method_ptr, self, raw_data(args), &ret)
     return
 }
 
@@ -99,27 +153,173 @@ new_{{ this.snake_name }} :: proc "contextless" () -> {{ this.self }} {
 {{ this.snake_name }}_{{ method.name }} :: proc "contextless" (
     self: {{ this.self }},
 {% for arg in method.args %}
-    {{ arg.name }}_: {{ arg.type }},
+    {{ arg.name }}_: {% if arg.type == "String_Name" %}String_Name_Arg{% elseif arg.type == "Node_Path" %}Node_Path_Arg{% elseif arg.type == "String" %}String_Arg{% else %}{{ arg.type }}{% end %},
 {% end %}
 ) {
     self := self
 {% for arg in method.args %}
     {{ arg.name }}_ := {{ arg.name }}_
+{% if arg.type == "String_Name" %}
+    __{{ arg.name }}_sn, __{{ arg.name }}_owned := borrow_or_convert_string_name({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string_name(__{{ arg.name }}_sn)
+{% elseif arg.type == "Node_Path" %}
+    __{{ arg.name }}_np, __{{ arg.name }}_owned := borrow_or_convert_node_path({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_node_path(__{{ arg.name }}_np)
+{% elseif arg.type == "String" %}
+    __{{ arg.name }}_str, __{{ arg.name }}_owned := borrow_or_convert_string({{ arg.name }}_)
+    defer if __{{ arg.name }}_owned do free_string(__{{ arg.name }}_str)
+{% end %}
 {% end %}
     args := []__bindgen_gde.TypePtr {
 {% for arg in method.args %}
+{% if arg.type == "String_Name" %}
+        &__{{ arg.name }}_sn,
+{% elseif arg.type == "Node_Path" %}
+        &__{{ arg.name }}_np,
+{% elseif arg.type == "String" %}
+        &__{{ arg.name }}_str,
+{% else %}
         &{{ arg.name }}_,
 {% end %}
+{% end %}
     }
-    __bindgen_gde.object_method_bind_ptrcall(__{{ method.name }}_method_ptr, &self, raw_data(args), nil)
+    __bindgen_gde.object_method_bind_ptrcall(__{{ method.name }}_method_ptr, self, raw_data(args), nil)
 }
 
 {% end %}
 {% end %}
 
+{% if this.godot_name == "Input" %}
+@(private = "file")
+__Key_State :: struct {
+    frame:     u64,
+    down:      bool,
+    prev_down: bool,
+}
+
+@(private = "file")
+__key_states: map[Key]__Key_State
+
+@(private = "file")
+__logical_key_states: map[Key]__Key_State
+
+@(private = "file")
+__update_key_state :: proc "contextless" (self: Input, keycode_: Key) -> __Key_State {
+    context = __bindgen_gde.godot_context()
+
+    eng := singleton_engine()
+    current_frame: u64
+    if bool(engine_is_in_physics_frame(eng)) {
+        current_frame = engine_get_physics_frames(eng)
+    } else {
+        current_frame = engine_get_process_frames(eng)
+    }
+
+    is_down := bool(input_is_physical_key_pressed(self, keycode_))
+
+    state, exists := __key_states[keycode_]
+    if !exists {
+        new_state := __Key_State{
+            frame     = current_frame,
+            down      = is_down,
+            prev_down = false,
+        }
+        __key_states[keycode_] = new_state
+        return new_state
+    }
+
+    if state.frame != current_frame {
+        if state.frame + 1 == current_frame {
+            state.prev_down = state.down
+        } else {
+            state.prev_down = is_down
+        }
+        state.down = is_down
+        state.frame = current_frame
+        __key_states[keycode_] = state
+    }
+
+    return state
+}
+
+@(private = "file")
+__update_logical_key_state :: proc "contextless" (self: Input, keycode_: Key) -> __Key_State {
+    context = __bindgen_gde.godot_context()
+
+    eng := singleton_engine()
+    current_frame: u64
+    if bool(engine_is_in_physics_frame(eng)) {
+        current_frame = engine_get_physics_frames(eng)
+    } else {
+        current_frame = engine_get_process_frames(eng)
+    }
+
+    is_down := bool(input_is_key_pressed(self, keycode_))
+
+    state, exists := __logical_key_states[keycode_]
+    if !exists {
+        new_state := __Key_State{
+            frame     = current_frame,
+            down      = is_down,
+            prev_down = false,
+        }
+        __logical_key_states[keycode_] = new_state
+        return new_state
+    }
+
+    if state.frame != current_frame {
+        if state.frame + 1 == current_frame {
+            state.prev_down = state.down
+        } else {
+            state.prev_down = is_down
+        }
+        state.down = is_down
+        state.frame = current_frame
+        __logical_key_states[keycode_] = state
+    }
+
+    return state
+}
+
+input_is_physical_key_pressed_down :: proc "contextless" (
+    self: Input,
+    keycode_: Key,
+) -> (ret: Bool) {
+    state := __update_key_state(self, keycode_)
+    return Bool(state.down && !state.prev_down)
+}
+
+input_is_physical_key_released :: proc "contextless" (
+    self: Input,
+    keycode_: Key,
+) -> (ret: Bool) {
+    state := __update_key_state(self, keycode_)
+    return Bool(!state.down && state.prev_down)
+}
+
+input_is_key_pressed_down :: proc "contextless" (
+    self: Input,
+    keycode_: Key,
+) -> (ret: Bool) {
+    state := __update_logical_key_state(self, keycode_)
+    return Bool(state.down && !state.prev_down)
+}
+
+input_is_key_released :: proc "contextless" (
+    self: Input,
+    keycode_: Key,
+) -> (ret: Bool) {
+    state := __update_logical_key_state(self, keycode_)
+    return Bool(!state.down && state.prev_down)
+}
+{% end %}
+
 {{ this.snake_name}}_init :: proc "contextless" () {
     __class_name = new_string_name_cstring("{{ this.godot_name }}", true)
     {% if len(this.instance_methods) + len(this.static_methods) > 0 %}
+    if __bindgen_gde.classdb_get_class_tag(&__class_name) == nil {
+        return
+    }
     __name: String_Name
     {% end %}
 
