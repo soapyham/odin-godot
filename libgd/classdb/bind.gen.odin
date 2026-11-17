@@ -4,6 +4,7 @@ import "godot:gdext"
 import "godot:godot"
 
 bind_void_method :: proc {
+    bind_void_method_typed_0_args,
     bind_void_method_0_args,
     bind_void_method_1_args,
     bind_void_method_2_args,
@@ -100,6 +101,18 @@ bind_void_method_0_args :: proc "contextless" (
     gdext.classdb_register_extension_class_method(gdext.library, class_name, &method_info)
 }
 
+bind_void_method_typed_0_args :: proc(
+    $T: typeid,
+    name: string,
+    function: $P/proc "contextless" (self: ^$Self),
+    class_name := "",
+) {
+    class_str_name := get_or_create_string_name(class_name) if class_name != "" else get_class_name(T)
+    method_str_name := get_or_create_string_name(name)
+    bind_void_method_0_args(class_str_name, method_str_name, function)
+}
+
+
 bind_returning_method_0_args :: proc "contextless" (
     class_name: ^godot.String_Name,
     method_name: ^godot.String_Name,
@@ -131,7 +144,12 @@ get_void_calls_0_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self)
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -165,7 +183,12 @@ get_returning_calls_0_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -201,7 +224,12 @@ get_void_calls_1_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0)
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -237,7 +265,12 @@ get_returning_calls_1_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -332,7 +365,12 @@ get_void_calls_2_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1)
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -370,7 +408,12 @@ get_returning_calls_2_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -475,7 +518,12 @@ get_void_calls_3_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1, arg2: Arg2)
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -522,7 +570,12 @@ get_returning_calls_3_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1, arg2: Arg2) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -645,7 +698,12 @@ get_void_calls_4_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1, arg2: Arg2, arg3: Arg3)
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -701,7 +759,12 @@ get_returning_calls_4_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1, arg2: Arg2, arg3: Arg3) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -832,7 +895,12 @@ get_void_calls_5_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1, arg2: Arg2, arg3: Arg3, arg4: Arg4)
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -892,7 +960,12 @@ get_returning_calls_5_args :: proc "contextless" (
     gdext.ExtensionClassMethodCall,
 ) {
     Proc :: #type proc "contextless" (self: ^Self, arg0: Arg0, arg1: Arg1, arg2: Arg2, arg3: Arg3, arg4: Arg4) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1046,7 +1119,12 @@ get_void_calls_6_args :: proc "contextless" (
         arg4: Arg4,
         arg5: Arg5,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1118,7 +1196,12 @@ get_returning_calls_6_args :: proc "contextless" (
         arg4: Arg4,
         arg5: Arg5,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1290,7 +1373,12 @@ get_void_calls_7_args :: proc "contextless" (
         arg5: Arg5,
         arg6: Arg6,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1367,7 +1455,12 @@ get_returning_calls_7_args :: proc "contextless" (
         arg5: Arg5,
         arg6: Arg6,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1550,7 +1643,12 @@ get_void_calls_8_args :: proc "contextless" (
         arg6: Arg6,
         arg7: Arg7,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1632,7 +1730,12 @@ get_returning_calls_8_args :: proc "contextless" (
         arg6: Arg6,
         arg7: Arg7,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1723,7 +1826,16 @@ bind_void_method_8_args :: proc "contextless" (
         simple_property_info(godot.variant_type(Arg6), arg6_name),
         simple_property_info(godot.variant_type(Arg7), arg7_name),
     }
-    args_metadata := [8]gdext.ExtensionClassMethodArgumentMetadata{.None, .None, .None, .None, .None, .None, .None, .None}
+    args_metadata := [8]gdext.ExtensionClassMethodArgumentMetadata {
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+    }
 
     ptrcall, call := get_void_calls(Self, Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7)
     method_info := gdext.ExtensionClassMethodInfo {
@@ -1776,7 +1888,16 @@ bind_returning_method_8_args :: proc "contextless" (
         simple_property_info(godot.variant_type(Arg6), arg6_name),
         simple_property_info(godot.variant_type(Arg7), arg7_name),
     }
-    args_metadata := [8]gdext.ExtensionClassMethodArgumentMetadata{.None, .None, .None, .None, .None, .None, .None, .None}
+    args_metadata := [8]gdext.ExtensionClassMethodArgumentMetadata {
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+        .None,
+    }
 
     return_info := simple_property_info(godot.variant_type(Ret), godot.string_name_empty_ref())
 
@@ -1826,7 +1947,12 @@ get_void_calls_9_args :: proc "contextless" (
         arg7: Arg7,
         arg8: Arg8,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -1913,7 +2039,12 @@ get_returning_calls_9_args :: proc "contextless" (
         arg7: Arg7,
         arg8: Arg8,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -2138,7 +2269,12 @@ get_void_calls_10_args :: proc "contextless" (
         arg8: Arg8,
         arg9: Arg9,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -2230,7 +2366,12 @@ get_returning_calls_10_args :: proc "contextless" (
         arg8: Arg8,
         arg9: Arg9,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -2468,7 +2609,12 @@ get_void_calls_11_args :: proc "contextless" (
         arg9: Arg9,
         arg10: Arg10,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -2565,7 +2711,12 @@ get_returning_calls_11_args :: proc "contextless" (
         arg9: Arg9,
         arg10: Arg10,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -2816,7 +2967,12 @@ get_void_calls_12_args :: proc "contextless" (
         arg10: Arg10,
         arg11: Arg11,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -2918,7 +3074,12 @@ get_returning_calls_12_args :: proc "contextless" (
         arg10: Arg10,
         arg11: Arg11,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -3197,7 +3358,12 @@ get_void_calls_13_args :: proc "contextless" (
         arg11: Arg11,
         arg12: Arg12,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -3304,7 +3470,12 @@ get_returning_calls_13_args :: proc "contextless" (
         arg11: Arg11,
         arg12: Arg12,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -3627,7 +3798,12 @@ get_void_calls_14_args :: proc "contextless" (
         arg12: Arg12,
         arg13: Arg13,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -3755,7 +3931,12 @@ get_returning_calls_14_args :: proc "contextless" (
         arg12: Arg12,
         arg13: Arg13,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -4094,7 +4275,12 @@ get_void_calls_15_args :: proc "contextless" (
         arg13: Arg13,
         arg14: Arg14,
     )
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data
@@ -4228,7 +4414,12 @@ get_returning_calls_15_args :: proc "contextless" (
         arg13: Arg13,
         arg14: Arg14,
     ) -> Ret
-    ptrcall :: proc "c" (data: rawptr, instance: gdext.ExtensionClassInstancePtr, args: [^]gdext.TypePtr, ret: gdext.TypePtr) {
+    ptrcall :: proc "c" (
+        data: rawptr,
+        instance: gdext.ExtensionClassInstancePtr,
+        args: [^]gdext.TypePtr,
+        ret: gdext.TypePtr,
+    ) {
         context = gdext.godot_context()
 
         method := cast(Proc)data

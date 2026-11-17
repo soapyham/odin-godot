@@ -4,14 +4,20 @@ import "base:intrinsics"
 import "godot:gdext"
 import "godot:godot"
 
-simple_property_info :: proc "contextless" (type: gdext.Variant_Type, name: ^godot.String_Name) -> gdext.PropertyInfo {
+simple_property_info :: proc "contextless" (
+    type: gdext.Variant_Type,
+    name: ^godot.String_Name,
+    hint: u32 = 0,
+    hint_string: ^godot.String = nil,
+    usage: u32 = 6, // 6 = PROPERTY_USAGE_DEFAULT (PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR)
+) -> gdext.PropertyInfo {
     return gdext.PropertyInfo {
         name        = name,
         type        = type,
-        hint        = 0, // .None
-        hint_string = godot.string_empty_ref(),
+        hint        = hint,
+        hint_string = hint_string if hint_string != nil else godot.string_empty_ref(),
         class_name  = godot.string_name_empty_ref(),
-        usage       = 0, // .Default
+        usage       = usage,
     }
 }
 
@@ -46,9 +52,14 @@ expect_args :: proc "contextless" (
     return true
 }
 
-bind_property_group :: proc(class_name: string, name: string, prefix: string) {
-    class_name := godot.new_string_odin(class_name)
-    defer godot.free_string(class_name)
+bind_property_group :: proc {
+    bind_property_group_string,
+    bind_property_group_type,
+}
+
+bind_property_group_string :: proc(class_name: string, name: string, prefix := "") {
+    class_name := godot.new_string_name_odin(class_name)
+    defer godot.free_string_name(class_name)
 
     name_str := godot.new_string_odin(name)
     defer godot.free_string(name_str)
@@ -59,9 +70,25 @@ bind_property_group :: proc(class_name: string, name: string, prefix: string) {
     gdext.classdb_register_extension_class_property_group(gdext.library, &class_name, &name_str, &prefix_str)
 }
 
-bind_property_subgroup :: proc(class_name: string, name: string, prefix: string) {
-    class_name := godot.new_string_odin(class_name)
-    defer godot.free_string(class_name)
+bind_property_group_type :: proc($T: typeid, name: string, prefix := "") {
+    class_name := get_class_name(T)
+    name_str := godot.new_string_odin(name)
+    defer godot.free_string(name_str)
+
+    prefix_str := godot.new_string_odin(prefix)
+    defer godot.free_string(prefix_str)
+
+    gdext.classdb_register_extension_class_property_group(gdext.library, class_name, &name_str, &prefix_str)
+}
+
+bind_property_subgroup :: proc {
+    bind_property_subgroup_string,
+    bind_property_subgroup_type,
+}
+
+bind_property_subgroup_string :: proc(class_name: string, name: string, prefix := "") {
+    class_name := godot.new_string_name_odin(class_name)
+    defer godot.free_string_name(class_name)
 
     name_str := godot.new_string_odin(name)
     defer godot.free_string(name_str)
@@ -70,6 +97,17 @@ bind_property_subgroup :: proc(class_name: string, name: string, prefix: string)
     defer godot.free_string(prefix_str)
 
     gdext.classdb_register_extension_class_property_subgroup(gdext.library, &class_name, &name_str, &prefix_str)
+}
+
+bind_property_subgroup_type :: proc($T: typeid, name: string, prefix := "") {
+    class_name := get_class_name(T)
+    name_str := godot.new_string_odin(name)
+    defer godot.free_string(name_str)
+
+    prefix_str := godot.new_string_odin(prefix)
+    defer godot.free_string(prefix_str)
+
+    gdext.classdb_register_extension_class_property_subgroup(gdext.library, class_name, &name_str, &prefix_str)
 }
 
 bind_property_and_methods :: proc {
@@ -116,16 +154,25 @@ bind_property_and_methods_gdstringname :: proc(
     setter_name: ^godot.String_Name,
     getter: proc "contextless" (self: ^$Self) -> $Value,
     setter: proc "contextless" (self: ^Self, value: Value),
+    hint: u32 = 0,
+    hint_string: ^godot.String = nil,
+    usage: u32 = 6,
 ) {
     bind_returning_method_0_args(class_name, getter_name, getter)
     bind_void_method_1_args(class_name, setter_name, setter, name)
 
     type := godot.variant_type(Value)
-    info := simple_property_info(type, name)
+    info := simple_property_info(type, name, hint, hint_string, usage)
     gdext.classdb_register_extension_class_property(gdext.library, class_name, &info, setter_name, getter_name)
 }
 
-bind_property :: proc(
+bind_property :: proc {
+    bind_property_raw,
+    bind_property_type,
+    bind_property_string,
+}
+
+bind_property_raw :: proc(
     class_name: ^godot.String_Name,
     name: ^godot.String_Name,
     type: gdext.Variant_Type,
@@ -141,7 +188,18 @@ Signal_Arg :: struct {
     type: gdext.Variant_Type,
 }
 
-bind_signal :: proc(class_name: ^godot.String_Name, signal_name: ^godot.String_Name, args: ..Signal_Arg) {
+bind_signal :: proc {
+    bind_signal_gdstringname,
+    bind_signal_typed,
+    bind_signal_typed_single_arg,
+    bind_signal_typed_single_arg_type,
+    bind_signal_string,
+    bind_signal_string_single_arg,
+    bind_signal_string_single_arg_type,
+    bind_signal_struct,
+}
+
+bind_signal_gdstringname :: proc(class_name: ^godot.String_Name, signal_name: ^godot.String_Name, args: ..Signal_Arg) {
     if len(args) == 0 {
         gdext.classdb_register_extension_class_signal(gdext.library, class_name, signal_name, nil, 0)
         return
