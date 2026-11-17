@@ -5,24 +5,22 @@
 >
 > If you are using parts of it, beware of sudden major changes to the API, structure, and features.
 
-This currently targets Godot v4.4. The base interface is backwards compatible with v4.3 and v4.2, and may even work with v4.1, **but it will not work with v4.0**. For a version which works with `v4.0` use the [dev-4.0-2024-02 release](https://github.com/dresswithpockets/odin-godot/tree/dev-4.0-2024-02).
+This branch generates bindings from the Godot 4.5 API pinned in the `godot-cpp` submodule.
 
-Checkout releases for each Godot version here: https://github.com/dresswithpockets/odin-godot/releases - Some are more stable than others.
+## GDExtension Bindings
 
-## Base GDExtension Bindings
-
-The bindings to the C Interface are in `gdextension`. Check out [hello-gdextension](examples/hello-gdextension/) for example usage of these bindings.
+The low-level C interface is in [`gdext/`](gdext/). The generated [`godot/`](godot/) package provides Odin wrappers, and [`libgd/`](libgd/) provides extension initialization and class registration helpers.
 
 ## Generating Complete Bindings
 
 Clone & generate bindings
 ```sh
-git clone --recurse-submodules -j8 https://github.com/dresswithpockets/odin-godot
+git clone --branch api-fix --recurse-submodules -j8 https://github.com/soapyham/odin-godot
 cd odin-godot
 make bindings
 ```
 
-Bindings for all enums, classes, utility functions, singletons, and native structs will be generated in `core`, `editor`, and `variant`.
+Bindings for enums, classes, utility functions, singletons, and native structs are generated in `godot/`.
 
 > [!NOTE]
 > `make bindings` expects odin on path, all submodules updated, and odin-godot (this repo) is the working directory.
@@ -50,9 +48,60 @@ odin build bindgen/ -o:speed -out:bin/bindgen.exe
 
 ## Creating a GDExtension
 
-Build [the example game](examples/game) from the repository root on Linux or Windows with `make game-extension`. Open `examples/game/project.godot` in Godot and run the project.
+Export an entry point whose name matches `entry_symbol` in your `.gdextension` file. In the [integration test project](examples/tests/), [`main.odin`](examples/tests/src/main.odin) exports `tests_library_init`. The `libgd.initialize_extension` helper runs the registration callback when Godot initializes the scene level.
 
-Then, follow the instructions for [using the extension module](https://docs.godotengine.org/en/stable/tutorials/scripting/cpp/gdextension_cpp_example.html#using-the-gdextension-module).
+```odin
+package test
+
+import "godot:gdext"
+import "godot:libgd"
+
+// see gdext.InitializationFunction
+@(export)
+tests_library_init :: proc "c" (
+    get_proc_address: gdext.ExtensionInterfaceGetProcAddress,
+    library: gdext.ExtensionClassLibraryPtr,
+    initialization: ^gdext.Initialization,
+) -> bool {
+    return libgd.initialize_extension(get_proc_address, library, initialization, register_test_classes)
+}
+
+register_test_classes :: proc() {
+    test_class_register()
+    lifecycle_probe_register()
+}
+```
+
+[`lifecycle_probe.odin`](examples/tests/src/lifecycle_probe.odin) registers a `Node2D` subclass. The `gd:"Node2D"` tag declares the Godot base class, `gd:"export"` exposes `value` as a property, and the vtable's `ready` callback runs when the node is ready. The scene supplies a child named `Message`, and the callback updates that child and emits the registered signal.
+
+```odin
+package test
+
+import "godot:godot"
+import "godot:libgd/classdb"
+
+Lifecycle_Probe :: struct {
+    base:  godot.Node2d `gd:"Node2D"`,
+    value: i64 `gd:"export"`,
+}
+
+lifecycle_probe_register :: proc() {
+    classdb.register_class(
+        Lifecycle_Probe,
+        classdb.Class_VTable(Lifecycle_Probe) {
+            ready = proc(self: ^Lifecycle_Probe) {
+                label: godot.Label = godot.node_get_node(self.base, "Message")
+                godot.node_set_name(label, godot.sn("Updated"))
+                godot.label_set_text(label, cstring("ready"))
+                classdb.emit_signal_2(self, "ready_value", self.value, string("ready"))
+            },
+        },
+    )
+    classdb.bind_signal(Lifecycle_Probe, "ready_value", struct { value: i64, message: godot.String })
+}
+```
+
+For a full game example, run `make game-extension` from the repository root before opening [the Godot project](examples/game/project.godot). The built extension registers the `Player` class used by the scene.
 
 ## Headless extension tests
 
@@ -68,27 +117,4 @@ The scene exits after the vector, exported property, lifecycle, and signal asser
 
 ## Godin
 
-Godin is a preprocessor which generates most of the boilerplate for Extension Classes, Methods, Enums, Properties, Signals, Groups, and Subgroups.
-
-> [!WARNING]
-> **Godin is suuuuper work in progress!**
->
-> Godin doesn't produce correct gdextension useage in its current state, and may not even run in some cases.
-
-For example, the following Odin code will produce all of the boilerplate for an extension class "Player" that extends "Node2D".
-```odin
-package test
-
-//+class Player extends Node2D
-Player :: struct {
-    health: i64,
-}
-```
-
-To build Godin:
-```sh
-# while in the odin-godot directory
-./build_godin.sh
-```
-
-Run `godin help` for usage details, including documentation about the Godin preprocessor syntax.
+Godin is an experimental preprocessor in [`godin/`](godin/). To explore its syntax, build it with `./build_godin.sh` and run `godin help`.
