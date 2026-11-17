@@ -4,4 +4,5 @@
 	branch = master
 [submodule "temple"]
 	path = temple
-	url = https://github.com/dresswithpockets/temple
+	url = https://github.com/soapyham/temple
+	branch = odin-cli-compat
