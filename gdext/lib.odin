@@ -33,7 +33,7 @@ ObjectInstanceId :: u64
 MethodBindPtr :: rawptr
 RefPtr :: rawptr
 
-Variant_Type :: enum u64 {
+Variant_Type :: enum c.int {
     Nil,
 
     /* atomic types */

@@ -1,4 +1,4 @@
-{{ this.name }} :: enum {
+{{ this.name }} :: enum i64 {
 {% for value in this.values %}
     {{ value.name }} = {{ value.value }},
 {% end %}

@@ -24,9 +24,12 @@ Opaque :: struct(I: int) {
     opaque: [I]uintptr,
 }
 
+// Godot's Variant payload size depends on real precision, not pointer width.
+Variant_Storage_Words :: 4 when REAL_PRECISION == "double" else 2
+
 Variant :: struct {
     type:   gd.Variant_Type,
-    opaque: Opaque(4),
+    opaque: [Variant_Storage_Words]u64,
 }
 
 Vector2 :: [2]Real
@@ -75,12 +78,12 @@ Projection :: [4]Vector4
 
 Color :: distinct [4]Real
 
-Rid :: distinct Opaque(2)
+Rid :: distinct Opaque(8 / size_of(uintptr))
 String :: distinct Opaque(1)
 String_Name :: distinct Opaque(1)
 Node_Path :: distinct Opaque(1)
-Callable :: distinct Opaque(4)
-Signal :: distinct Opaque(4)
+Callable :: distinct Opaque(16 / size_of(uintptr))
+Signal :: distinct Opaque(16 / size_of(uintptr))
 Dictionary :: distinct Opaque(1)
 Array :: distinct Opaque(1)
 
