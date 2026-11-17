@@ -1,0 +1,51 @@
+package example
+
+import "godot:godot"
+import "godot:libgd/classdb"
+
+ExampleClass :: struct {
+    base:        godot.Sprite2d,
+    amplitude:   f64,
+    speed:       f64,
+    time_emit:   f64,
+    time_passed: f64,
+}
+
+set_speed :: proc "contextless" (self: ^ExampleClass, speed: f64) {
+    self.speed = speed
+
+    msg := godot.new_string_cstring("set_speed")
+    defer godot.free_string(msg)
+
+    godot.gd_print(godot.variant_from(&msg))
+    godot.gd_print(godot.variant_from(&self.speed))
+}
+
+get_speed :: proc "contextless" (self: ^ExampleClass) -> f64 {
+    return self.speed
+}
+
+process :: proc(self: ^ExampleClass, delta: f64) {
+    self.time_passed += self.speed * delta
+
+    if self.time_passed >= self.time_emit {
+        classdb.emit_signal(self, "time_passed", self.time_passed)
+        self.time_passed -= self.time_emit
+    }
+}
+
+example_class_register :: proc() {
+    classdb.register_class(ExampleClass, "Sprite2D", classdb.Class_VTable(ExampleClass) {
+        init = proc(self: ^ExampleClass) {
+            self.amplitude = 1.0
+            self.speed = 1.0
+            self.time_passed = 0.0
+            self.time_emit = 5.0
+        },
+        process = process,
+    })
+
+    classdb.bind_field(ExampleClass, "amplitude", offset_of(ExampleClass, amplitude), f64)
+    classdb.bind_property(ExampleClass, "speed", get_speed, set_speed)
+    classdb.bind_signal(ExampleClass, "time_passed", "time_passed", f64)
+}
